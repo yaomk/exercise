@@ -1,21 +1,27 @@
-git branch	...<��ʾ���ط�֧>
+git branch	...<显示本地分支>
 
-git branch -a	...<��ʾ���з�֧������Զ�ֿ̲�ķ�֧>
+git branch -a	...<显示所有分支，包括远程仓库的分支>
 
-git branch -d dev	...<ɾ�����ط�֧dev>
+git branch -d dev	...<删除本地分支dev>
 
-git checkout dev	...<�л���ָ����֧dev>
+git checkout dev	...<切换到指定分支dev>
 
-git checkout -b dev	...<������֧dev>
+git checkout -b dev	...<创建分支dev>
 
-git push --delete origin dev	...<ɾ��Զ�ֿ̲�ķ�֧dev>
+git push --delete origin dev	...<删除远程仓库的分支dev>
 
-git fetch	...<�����ص�commit id������Զ�ֿ̲��commit id�������±��زֿ�Ĵ���>
+git fetch	...<将本地的commit id更新至远程仓库的commit id，不更新本地仓库的代码>
 
-git pull	...<��ȡԶ�ֿ̲⣬�����زֿ���Զ�ֿ̲�ͬ��>
+git pull	...<拉取远程仓库，将本地仓库与远程仓库同步>
 
-git log --pretty=oneline	...<�Ե�����ʽչʾlog��־>
+git log --pretty=oneline	...<以单行形式展示log日志>
 
-git log --graph		...<�鿴��֧�ϲ�ͼ>
+git log --graph		...<查看分支合并图>
 
-git remote -v		...<�鿴Զ�ֿ̲�ĵ�ַ>
+git remote -v		...<查看远程仓库的地址>
+
+git branch -vv  ...<查看本地分支与远程分支的关联>
+
+git branch --unset-upstream   ...<取消当前本地分支与远程分支的关联>
+
+git branch --set-upstream-to=origin/dev   ...<将本地的分支与远程dev分支关联起来>
