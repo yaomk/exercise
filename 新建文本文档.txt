@@ -25,3 +25,5 @@ git branch -vv  ...<查看本地分支与远程分支的关联>
 git branch --unset-upstream   ...<取消当前本地分支与远程分支的关联>
 
 git branch --set-upstream-to=origin/dev   ...<将本地的分支与远程dev分支关联起来>
+
+git merge dev --no-ff   ...<合并dev到指定分支，保留合并信息>
