@@ -6,7 +6,9 @@ git branch -d dev	...<删除本地分支dev>
 
 git checkout dev	...<切换到指定分支dev>
 
-git checkout -b dev	...<创建分支dev>
+git checkout -b dev	...<创建并切换到分支dev>
+
+git switch -c dev   ...<创建并切换到分支dev>
 
 git push --delete origin dev	...<删除远程仓库的分支dev>
 
