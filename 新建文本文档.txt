@@ -33,3 +33,15 @@ git merge dev --no-ff   ...<合并dev到指定分支，保留合并信息>
 git remote show origin   ...<查看远程仓库地址，和分支对应情况>
 
 git remote prune origin   ...<删除本地存在的远程仓库已不存在的分支>
+
+git stash            ...<将未add的工作区代码储存起来，可以带有保存信息———— git stash save message。message为本次保存的注释信息>
+
+git stash pop        ...<将储存的代码恢复到工作区，并将储存的记录删除到，可以带有要恢复的次序———— git stash pop stash@{0} === git stash pop>
+
+git stash list      ...<展示储存的代码列表>
+
+git stash clear     ...<清除所有的储存代码>
+
+git stash apply stash@{0}    ...<恢复次序为0的储存代码，不删除，list里面依然存在>
+
+git stash drop stash@{0}     ...<删除次序为0的储存代码>
