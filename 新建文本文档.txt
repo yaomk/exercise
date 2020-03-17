@@ -45,3 +45,7 @@ git stash clear     ...<清除所有的储存代码>
 git stash apply stash@{0}    ...<恢复次序为0的储存代码，不删除，list里面依然存在>
 
 git stash drop stash@{0}     ...<删除次序为0的储存代码>
+
+git reset --hard 版本号      ...<回退到指定版本号>
+
+git reset HEAD^              ...<回退上一版本，保留工作区的代码，即保留上版本与本次commit后的代码>
