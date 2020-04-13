@@ -49,3 +49,11 @@ git stash drop stash@{0}     ...<删除次序为0的储存代码>
 git reset --hard 版本号      ...<回退到指定版本号>
 
 git reset HEAD^              ...<回退上一版本，保留工作区的代码，即保留上版本与本次commit后的代码>
+
+git reset 文件名             ...<撤销暂存工作区的代码，即取消git add的操作，返回没有add 之前的操作>
+
+git restore  --staged 文件   ...<撤销暂存工作区的代码，即取消git add的操作，返回没有add 之前的操作>
+
+git chekout .                ...<放弃工作区所有的更改>
+
+git restore .                ...<放弃工作区所有的更改>
