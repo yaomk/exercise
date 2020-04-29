@@ -22,6 +22,10 @@ git log --graph		...<查看分支合并图>
 
 git remote -v		...<查看远程仓库的地址>
 
+git remote add origin <远程仓库地址>    ...将本地仓库与远程仓库关联起来，origin可以随意指定
+
+git remote remove origin    ...取消本地仓库与远程仓库的关联
+
 git branch -vv  ...<查看本地分支与远程分支的关联>
 
 git branch --unset-upstream   ...<取消当前本地分支与远程分支的关联>
