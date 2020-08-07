@@ -12,7 +12,7 @@ git switch -c dev   ...<创建并切换到分支dev>
 
 git push --delete origin dev	...<删除远程仓库的分支dev>
 
-git push origin dev:master    ...<将本地的dev分支内容提交到远程仓库master分支上>
+git push origin dev:master    ...<将本地的dev分支内容提交到远程仓库master分支上，当本地dev提交到远程dev时，可以省略，即git push origin dev>
 
 git fetch	...<将本地的commit id更新至远程仓库的commit id，不更新本地仓库的代码>
 
