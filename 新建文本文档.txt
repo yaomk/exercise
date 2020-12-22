@@ -20,7 +20,7 @@ git fetch	...<将本地的commit id更新至远程仓库的commit id，不更新
 
 git pull	...<拉取远程仓库，将本地仓库与远程仓库同步>
 
-git log --pretty=oneline	...<以单行形式展示log日志>
+git log --pretty=oneline	...<以单行形式展示log日志,显示具体的提交commit id>
 
 git log --graph		...<查看分支合并图>
 
