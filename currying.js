@@ -1,6 +1,6 @@
-# function currying
-# 在计算机科学中，柯里化（Currying）是把接受多个参数的函数变换成接受一个单一参数(最初函数的第一个参数)的函数，并且返回接受余下的参数且返回结果的新函数的技术。
-# 参数服用、延迟计算
+// # function currying
+// # 在计算机科学中，柯里化（Currying）是把接受多个参数的函数变换成接受一个单一参数(最初函数的第一个参数)的函数，并且返回接受余下的参数且返回结果的新函数的技术。
+// # 参数复用、延迟计算
 
 function curry(fn){
   let args = Array.prototype.slice.call(arguments,1);    
@@ -15,7 +15,7 @@ function curry(fn){
   }
 }
 
-# Arrow function expressions
+// # Arrow function expressions
 function currying(fn) {
   if (fn.length <= 1) return fn;
   const generator = (...args) => {
