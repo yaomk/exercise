@@ -30,6 +30,8 @@ function currying(fn) {
   return generator
 }
 
+const curry = (fn, ...args) => fn.length <= args.length ? fn(...args) : curry.bind(null, fn, ...args)
+
 function returnAPI(host, proxy, api) {
   return host + proxy + api
 }
