@@ -1,3 +1,8 @@
+/*
+  https://www.ituring.com.cn/article/66566
+  Promises/A+ 规范（译文）
+*/
+
 class MyPromise {
   static PENDING = 'pengding'
   static FULFILLED = 'fulfilled'
