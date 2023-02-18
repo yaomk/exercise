@@ -93,3 +93,5 @@ git restore  --staged 文件   ...<撤销暂存工作区的代码，即取消git
 git chekout .                ...<放弃工作区所有的更改>
 
 git restore .                ...<放弃工作区所有的更改>
+
+git cherry-pick 哈希|分支名   ...<将某次提交|某分支最新提交，转移到本分支。转移多个：git cherry-pick 哈希 哈希；转移哈希A ~ 哈希B提交之间的所有：git cherry-pick 哈希A..哈希B>
