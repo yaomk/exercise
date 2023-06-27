@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>装饰器模式</title>
+</head>
+<style>
+  #modal {
+    height: 200px;
+    width: 200px;
+    line-height: 200px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid black;
+    text-align: center;
+  }
+</style>
+
+<body>
+  <button id='open'>点击打开</button>
+  <button id='open2'>点击打开2</button>
+  <button id='open3'>点击打开3, 装饰器模式</button>
+  <button id='open4'>点击打开4, 装饰器模式采用class语法</button>
+</body>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+  /**
+   * 装饰器模式：在不改变原对象的基础上，通过对其进行包装扩展，使原有对象可以满足用户的更复杂需求。
+   */
+
+  /**
+   * 定义弹窗单例模式
+  */
+  const Modal = (() => {
+    let divEl = null
+    return function () {
+      if (!divEl) {
+        divEl = document.createElement('div')
+        divEl.innerText = '未进行登录~'
+        divEl.id = 'modal'
+        divEl.style.display = 'none'
+        let closeBtnEl = document.createElement('button')
+        closeBtnEl.innerText = '关闭'
+        closeBtnEl.onclick = () => {
+          divEl.style.display = 'none'
+        }
+        divEl.appendChild(closeBtnEl)
+        document.body.appendChild(divEl)
+      }
+      return divEl
+    }
+  }
+  )()
+  // #region 
+  // 当需求变动时，如每次点击时需要更改当前点击的按钮的文字、颜色等等
+  // 原有功能实现，不好扩展，需更改每次点击事件逻辑
+  document.getElementById('open').addEventListener('click', function () {
+    const modal = new Modal()
+    modal.style.display = 'block'
+  })
+
+  document.getElementById('open2').addEventListener('click', function () {
+    const modal = new Modal()
+    modal.style.display = 'block'
+  })
+  // #endregion
+
+  // #region 展示modal逻辑单独封装
+  function openModal() {
+    const model = new Modal()
+    modal.style.display = 'block'
+  }
+  // 按钮文案修改逻辑
+  function changeButtonText(elId) {
+    const btn = document.getElementById(elId)
+    btn.innerText = '快去登录'
+  }
+  // 按钮禁用更改逻辑
+  function disableButton(elId) {
+    const btn =  document.getElementById(elId)
+    btn.setAttribute("disabled", true)
+  }
+  // 按钮字体颜色更改逻辑
+  function changeButtonTextColor(elId) {
+    const btn =  document.getElementById(elId)
+    btn.style.color = 'red'
+  }
+  /**
+   * 逻辑整合
+   * @desc 单一职责原则：文本修改 & 按钮禁用 & 字体颜色
+  */
+  function changeButtonStatus(elId) {
+    changeButtonText(elId)
+    disableButton(elId)
+    changeButtonTextColor(elId)
+
+  }
+  document.getElementById('open3').addEventListener('click', function () {
+    // 这样我们就是实现了‘只添加，不修改’的装饰器模式。
+    openModal()
+    changeButtonStatus(this.id)
+  })
+  // #endregion
+  
+  // #region 使用类
+  /**
+   * 定义打开的按钮
+  */
+  class OpenButton {
+    // 点击展示弹窗（旧逻辑）
+    onClick() {
+      const modal = new Modal()
+      modal.style.display = 'block'
+    }
+  }
+  /**
+   * 定义按钮对应的装饰器
+  */
+  class Decorator {
+    // 将按钮实例传入
+    constructor(open_button) {
+      this.btn = open_button
+    }
+    onClick() {
+      this.btn.onClick()
+      // “包装”了一层新逻辑
+      this.changeButtonStatus()
+    }
+    changeButtonStatus() {
+      this.changeButtonText()
+      this.disableButton()
+      this.changeButtonTextColor()
+    }
+    changeButtonText() {
+      const btn = document.getElementById('open4')
+      btn.innerText = '快去登录'
+    }
+    disableButton() {
+      const btn = document.getElementById('open4')
+      btn.setAttribute("disabled", true)
+    }
+    changeButtonTextColor() {
+      const btn = document.getElementById('open4')
+      Object.assign(btn.style, {
+        color: 'red'
+      })
+    }
+  }
+  const openBtn = new OpenButton()
+  const decorator = new Decorator(openBtn)
+  document.getElementById('open4').addEventListener('click',function() {
+    openBtn.onClick()
+    // 此处可以分别尝试两个实例的onClick方法，验证装饰器是否生效
+    // decorator.onClick()
+  })
+  // #endregion
+
+</script>
+
+</html>
