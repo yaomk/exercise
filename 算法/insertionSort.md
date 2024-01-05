@@ -48,3 +48,37 @@ function insertionSort(list = []) {
     return list
 }
 ```
+## 可优化地方
+
+* 有序序列的遍历，可以使用二分法查找插入位置，再将该位置后的元素右移，最后将待插入的元素插入指定位置。
+
+```javascript
+const arr = [3,6,7,8,1,2,9,5,4]
+l =0 r = 3
+function binaryInsertionSort(list = []) {
+    list = [...list]
+    const length = list.length
+    for (let i = 1; i < length; i++) {
+        const current = list[i] // 当前待插入的元素
+        // 有序序列的左右索引边界
+        let leftIdx = 0;
+        let rightIdx = i - 1;
+        // 通过二分搜索找到插入位置
+        while (leftIdx <= rightIdx) {
+            const mid = Math.floor((leftIdx + rightIdx) / 2)
+            if (current < list[mid]) {
+                rightIdx = mid - 1
+            } else {
+                leftIdx = mid + 1
+            }
+        }
+        // 将插入位置之后的元素后移
+        for (let j = i; j > leftIdx; j--) {
+        list[j] = list[j - 1]
+        }
+        // 插入当前元素到合适位置
+        list[leftIdx] = current
+    }
+    return list
+}
+```
