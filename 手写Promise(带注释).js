@@ -25,39 +25,28 @@ class MyPromise {
     }
   }
   resolve(result) { // result为成功态时接收的终值
-    // 只能由pedning状态 => fulfilled状态 (避免调用多次resolve reject)
+    // 只能由 pending 状态 => fulfilled 状态 (避免调用多次 resolve reject)
     if (this.PromiseState === MyPromise.PENDING) {
+      this.PromiseState = MyPromise.FULFILLED
+      this.PromiseResult = result
       /**
-       * 为什么 resolve 和 reject 要加 setTimeout?
-       * 2.2.4规范 onFulfilled 和 onRejected 只允许在 execution context 栈仅包含平台代码时运行. 注1
-       * 这里的平台代码指的是引擎、环境以及 promise 的实施代码。
-       * 实践中要确保 onFulfilled 和 onRejected 方法异步执行，且应该在 then 方法被调用的那一轮事件循环之后的新执行栈中执行。
-       * 这个事件队列可以采用“宏任务（macro-task）”机制，比如setTimeout 或者 setImmediate；也可以采用“微任务（micro-task）”机制来实现， 比如 MutationObserver 或者process.nextTick。 
+       * 在执行 resolve 或者 reject 的时候，遍历自身的 callbacks 数组，
+       * 看看数组里面有没有 then 那边保留过来的待执行函数，
+       * 然后逐个执行数组里面的函数，执行的时候会传入相应的参数
        */
-      setTimeout(() => {
-        this.PromiseState = MyPromise.FULFILLED
-        this.PromiseResult = result
-        /**
-         * 在执行 resolve 或者 reject 的时候，遍历自身的 callbacks 数组，
-         * 看看数组里面有没有 then 那边保留过来的待执行函数，
-         * 然后逐个执行数组里面的函数，执行的时候会传入相应的参数
-         */
-        this.onFulfilledCallbacks.forEach(callback => {
-          callback(result)
-        })
-      });
+      this.onFulfilledCallbacks.forEach(callback => {
+        callback(result)
+      })
     }
   }
-  reject(reson) {// reason为拒绝态时接收的终值
-    // 只能由pedning状态 => rejected状态 (避免调用多次resolve reject)
+  reject(reason) {// reason为拒绝态时接收的终值
+    // 只能由 pending 状态 => rejected 状态 (避免调用多次 resolve reject)
     if (this.PromiseState === MyPromise.PENDING) {
-      setTimeout(() => {
-        this.PromiseState = MyPromise.REJECTED
-        this.PromiseResult = reson
-        this.onRejectedCallbacks.forEach(callback => {
-          callback(reson)
-        })
-      });
+      this.PromiseState = MyPromise.REJECTED
+      this.PromiseResult = reason
+      this.onRejectedCallbacks.forEach(callback => {
+        callback(reason)
+      })
     }
   }
   /**
@@ -67,15 +56,6 @@ class MyPromise {
    * @returns {MyPromise} newPromise 返回一个新的 promise 对象
    */
   then(onFulfilled, onRejected) {
-    /**
-     * 参数校验：Promise 规定 then 方法里面的两个参数如果不是函数的话就要被忽略
-     * 所谓“忽略”并不是什么都不干，
-     * 对于 onFulfilled 来说“忽略”就是将 value 原封不动的返回，
-     * 对于 onRejected 来说就是返回 reason，
-     *     onRejected 因为是错误分支，我们返回 reason 应该 throw 一个 Error
-     */
-    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value
-    onRejected = typeof onRejected === 'function' ? onRejected : err => { throw err }
     // 2.2.7规范 then 方法必须返回一个 promise 对象
     const promise2 = new MyPromise((resolve, reject) => {
       if (this.PromiseState === MyPromise.FULFILLED) {
@@ -84,44 +64,66 @@ class MyPromise {
          * 2.2.4规范 onFulfilled 和 onRejected 只有在执行环境堆栈仅包含平台代码时才可被调用。 注1
          * 这里的平台代码指的是引擎、环境以及 promise 的实施代码。
          * 实践中要确保 onFulfilled 和 onRejected 方法异步执行，且应该在 then 方法被调用的那一轮事件循环之后的新执行栈中执行。
-         * 这个事件队列可以采用“宏任务（macro-task）”机制，比如setTimeout 或者 setImmediate；也可以采用“微任务（micro-task）”机制来实现， 比如 MutationObserver 或者process.nextTick。 
+         * 这个事件队列可以采用“宏任务（macro-task）”机制，比如setTimeout 或者 setImmediate；也可以采用“微任务（micro-task）”机制来实现， 比如 MutationObserver 或者process.nextTick。
          */
         setTimeout(() => {
           try {
-            // 2.2.7.1规范 如果 onFulfilled 或者 onRejected 返回一个值 x ，则运行下面的 Promise 解决过程：[[Resolve]](promise2, x)，即运行resolvePromise()
-            let x = onFulfilled(this.PromiseResult)
-            resolvePromise(promise2, x, resolve, reject)
+            if (typeof onFulfilled !== 'function') {
+              /// 2.2.7.3规范 如果 onFulfilled 不是函数且 promise1 成功执行， promise2 必须成功执行并返回相同的值
+              resolve(this.PromiseResult)
+            } else {
+              // 2.2.7.1规范 如果 onFulfilled 或者 onRejected 返回一个值 x ，则运行下面的 Promise 解决过程：[[Resolve]](promise2, x)，即运行resolvePromise()
+              let x = onFulfilled(this.PromiseResult)
+              resolvePromise(promise2, x, resolve, reject)
+            }
           } catch (error) {
-            // 2.2.7.2 如果 onFulfilled 或者 onRejected 抛出一个异常 error ，则 promise2 必须拒绝执行，并返回拒因 error
-            reject(error) // 捕获前面onFulfilled中抛出的错误
+            // 2.2.7.2规范 如果 onFulfilled 或者 onRejected 抛出一个异常 error ，则 promise2 必须拒绝执行，并返回拒因 error
+            reject(error) // 捕获前面 onFulfilled 中抛出的错误
           }
-        });
+        })
       } else if (this.PromiseState === MyPromise.REJECTED) {
         setTimeout(() => {
           try {
-            let x = onRejected(this.PromiseResult)
-            resolvePromise(promise2, x, resolve, reject)
-          } catch (error) {
-            reject(error)
-          }
-        });
-      } else if (this.PromiseState === MyPromise.PENDING) {
-        // pending 状态保存的 resolve() 和 reject() 回调也要符合 2.2.7.1 和 2.2.7.2 规范
-        this.onFulfilledCallbacks.push(() => {
-          try {
-            let x = onFulfilled(this.PromiseResult)
-            resolvePromise(promise2, x, resolve, reject)
+            if (typeof onRejected !== 'function') {
+              // 2.2.7.4规范 如果 onRejected 不是函数且 promise1 拒绝执行， promise2 必须拒绝执行并返回相同的据因
+              reject(this.PromiseResult)
+            } else {
+              let x = onRejected(this.PromiseResult)
+              resolvePromise(promise2, x, resolve, reject)
+            }
           } catch (error) {
             reject(error)
           }
         })
+      } else if (this.PromiseState === MyPromise.PENDING) {
+        // pending 状态保存的 onFulfilled() 和 onRejected() 回调也要符合 2.2.7.1, 2.2.7.2, 2.2.7.3, 2.2.7.4 规范
+        this.onFulfilledCallbacks.push(() => {
+          setTimeout(() => {
+            try {
+              if (typeof onFulfilled !== 'function') {
+                resolve(this.PromiseResult)
+              } else {
+                let x = onFulfilled(this.PromiseResult)
+                resolvePromise(promise2, x, resolve, reject)
+              }
+            } catch (e) {
+              reject(e)
+            }
+          })
+        })
         this.onRejectedCallbacks.push(() => {
-          try {
-            let x = onRejected(this.PromiseResult)
-            resolvePromise(promise2, x, resolve, reject)
-          } catch (error) {
-            reject(error)
-          }
+          setTimeout(() => {
+            try {
+              if (typeof onRejected !== 'function') {
+                reject(this.PromiseResult)
+              } else {
+                let x = onRejected(this.PromiseResult)
+                resolvePromise(promise2, x, resolve, reject)
+              }
+            } catch (e) {
+              reject(e)
+            }
+          })
         })
       }
     })
@@ -131,25 +133,25 @@ class MyPromise {
     return this.then(undefined, onRejected)
   }
   /**
-   * 
+   *
    * @param {function} callback 无论结果为 fulfilled 或者 rejected ，都会执行的回调函数
-   * @returns 
+   * @returns
    */
   finally(callback) {
     return this.then(callback, callback)
   }
   /**
    * Promise.resolve()
-   * @param {[type]} value 要解析为 Promise 对象的值 
+   * @param {[type]} value 要解析为 Promise 对象的值
    */
   static resolve(value) {
-    // 如果这个值是一个 promise ，那么将返回这个 promise 
+    // 如果这个值是一个 promise ，那么将返回这个 promise
     if (value instanceof MyPromise) {
-      return value;
+      return value
     } else if (value instanceof Object && 'then' in value) {
       // 如果这个值是thenable（即带有`"then" `方法），返回的promise会“跟随”这个thenable的对象，采用它的最终状态；
       return new MyPromise((resolve, reject) => {
-        value.then(resolve, reject);
+        value.then(resolve, reject)
       })
     }
     // 否则返回的promise将以此值完成，即以此值执行`resolve()`方法 (状态为fulfilled)
@@ -160,11 +162,11 @@ class MyPromise {
   /**
    * Promise.reject()
    * @param {*} reason 表示Promise被拒绝的原因
-   * @returns 
+   * @returns
    */
   static reject(reason) {
     return new MyPromise((resolve, reject) => {
-      reject(reason);
+      reject(reason)
     })
   }
   /**
@@ -191,26 +193,16 @@ class MyPromise {
 function resolvePromise(promise2, x, resolve, reject) {
   // 如果从 onFulfilled 或 onRejected 中返回的 x 就是 promise2，会导致循环引用报错
   if (x === promise2) {
-    return reject(new TypeError('Chaining cycle detected for promise'))
+    throw new TypeError('Chaining cycle detected for promise')
   }
   if (x instanceof MyPromise) {
-    // 2.3.2 如果 x 为 Promise，则使 promise2 接受 x 的状态
-    if (x.PromiseState === MyPromise.PENDING) {
-      /**
-       * 2.3.2.1 如果 x 处于等待态，promise 需保持等待态直至 x 被执行或拒绝
-       *         注意‘直至 x 被执行或拒绝’这句话，
-       *         这句话的意思是：x 被执行 x，如果执行的时候拿到一个 y，还要继续解析 y
-       */
-      x.then(y => {
-        resolvePromise(promise2, y, resolve, reject)
-      }, reject)
-    } else if (x.PromiseState === MyPromise.FULFILLED) {
-      // 2.3.2.2 如果 x 处于执行态，用相同的值执行 promise
-      resolve(x.PromiseResult)
-    } else if (x.PromiseState === MyPromise.REJECTED) {
-      // 2.3.2.3 如果 x 处于拒绝态，用相同的拒因拒绝 promise
-      reject(x.PromiseResult)
-    }
+    /**
+     * 2.3.2 如果 x 为 Promise ，则使 promise2 接受 x 的状态
+     * 也就是继续执行 x，如果执行的时候拿到一个 y，还要继续解析 y
+     */
+    x.then(y => {
+      resolvePromise(promise2, y, resolve, reject)
+    }, reject)
   } else if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
     let then
     // 2.3.3 如果 x 为对象或者函数
