@@ -78,11 +78,11 @@ git stash apply stash@{0}    ...<恢复次序为0的储存代码，不删除，l
 
 git stash drop stash@{0}     ...<删除次序为0的储存代码>
 
-git reset --hard 版本号      ...<回退到指定版本号>
+git reset --hard 版本号      ...<回退到指定版本号，不保存工作区、暂存区代码>
 
 git reset HEAD^              ...<回退上一版本，保留工作区的代码，即保留上版本与本次commit后的代码（回到git add前）；HEAD^^表示上上个版本(^数量表示多少个版本)，可以写为HEAD~2>
 
-git reset --soft HEAD^       ...<回退上一版本，保留工作区代码，回到（git commit前，即已git add）>
+git reset --soft HEAD^       ...<回退上一版本，保留工作区、暂存区代码，回到（git commit前，即已git add）>
 
 git revert -n 版本号          ...<用于回滚某个版本号，保留回滚的版本号之后的操作，并手动提交生成一个新的提交日志>
 
